@@ -14,7 +14,7 @@ class VaporNovaUpload extends Field
     public $component = 'vapor-nova-upload';
 
     /**
-     * Set the hues that may be selected by the color picker.
+     * Set the type of image or video to limit what files are allowed on file input.
      *
      * @param  array  $hues
      * @return $this
@@ -25,7 +25,7 @@ class VaporNovaUpload extends Field
     }
 
     /**
-     * Set the hues that may be selected by the color picker.
+     * Set the preview url prefix for images and videos.
      *
      * @param  array  $hues
      * @return $this

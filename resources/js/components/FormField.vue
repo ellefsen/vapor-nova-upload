@@ -1,0 +1,148 @@
+<template>
+  <default-field
+    :field="field"
+    :errors="errors">
+    <template slot="field">
+      <div
+        v-if="field.type && field.type === 'video'"
+        class="card relative card relative border border-lg border-50 overflow-hidden px-0 py-0 mb-4">
+        <video
+          class="block w-full"
+          controls="controls"
+          :src="videoPath" />
+      </div>
+      <div
+        class="card relative card relative border border-lg border-50 overflow-hidden px-0 py-0 mb-4"
+        v-else-if="value">
+        <img
+          :src="imagePath"
+          class="block w-full"
+          alt="">
+      </div>
+
+      <p class="my-4 text-80 text-xs">
+        {{ value }}
+      </p>
+
+      <input
+        :id="field.name"
+        type="file"
+        ref="file"
+        class="w-full form-control form-input form-input-bordered hidden"
+        :class="errorClasses"
+        :placeholder="field.name"
+        :accept="accept"
+        @change="handleChange">
+      <div class="flex items-center">
+        <button
+          class="btn btn-default btn-primary inline-flex items-center relative mr-2"
+          :disabled="busy"
+          @click.prevent="openFileField">
+          Choose File
+        </button>
+        <div
+          v-if="uploadProgress > 0 && busy"
+          class="text-70 text-sm">
+          Uploading... {{ uploadProgress }}%
+        </div>
+      </div>
+
+      <div
+        class="help-text error-text mt-2 text-danger"
+        v-if="!error">
+        {{ error }}
+      </div>
+    </template>
+  </default-field>
+</template>
+
+<script>
+import axios from "axios"
+import Vapor from "laravel-vapor"
+import { FormField, HandlesValidationErrors } from "laravel-nova"
+
+export default {
+  mixins: [FormField, HandlesValidationErrors],
+
+  props: ["resourceName", "resourceId", "field"],
+
+  data () {
+    return {
+      uploadProgress: 0,
+      busy: false,
+      path: null,
+      error: null,
+    }
+  },
+
+  mounted () {
+    console.log(this.field)
+  },
+
+  methods: {
+    /*
+      * Set the initial, internal value for the field.
+      */
+    setInitialValue() {
+      this.value = this.field.value || ""
+    },
+
+    /**
+     * Fill the given FormData object with the field's internal value.
+     */
+    fill(formData) {
+      formData.append(this.field.attribute, this.value || "")
+    },
+
+    /**
+     * Update the field's internal value.
+     */
+    handleChange() {
+      this.busy = true
+
+      Vapor.store(this.$refs.file.files[0], {
+        progress: progress => {
+          this.uploadProgress = Math.round(progress * 100)
+        }
+      }).then(response => {
+        return axios.post("/nova-custom/upload", {
+          uuid: response.uuid,
+          key: response.key,
+          bucket: response.bucket,
+          name: this.$refs.file.files[0].name,
+          content_type: this.$refs.file.files[0].type,
+        })
+      })
+      .catch(e => {
+        this.error = "Upload process failed."
+      })
+      .then(response => {
+        this.value = response.data.path
+        this.busy = false
+      })
+      .catch((e) => {
+        this.error = "File validation failed."
+        this.busy = false
+      })
+    },
+
+    openFileField () {
+      this.$refs.file.click()
+    }
+  },
+
+  computed: {
+    accept () {
+      return this.field.type === "image" ? "image/*" : "video/mp4"
+    },
+
+    imagePath () {
+      return `${this.field.previewUrl}/${this.value}?w=400&q=100&auto=format&fit=fill`
+    },
+
+    videoPath () {
+      return `${this.field.previewUrl}/${this.value}`
+    }
+  }
+}
+</script>

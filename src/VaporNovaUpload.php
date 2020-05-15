@@ -16,7 +16,8 @@ class VaporNovaUpload extends Field
     /**
      * Set the type of image or video to limit what files are allowed on file input.
      *
-     * @param  array  $hues
+     * @param array $hues
+     *
      * @return $this
      */
     public function type(string $type)
@@ -27,7 +28,8 @@ class VaporNovaUpload extends Field
     /**
      * Set the preview url prefix for images and videos.
      *
-     * @param  array  $hues
+     * @param array $hues
+     *
      * @return $this
      */
     public function previewUrl(string $url)

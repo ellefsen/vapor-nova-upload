@@ -40,11 +40,17 @@
           @click.prevent="openFileField">
           Choose File
         </button>
-        <div
-          v-if="uploadProgress > 0 && busy"
-          class="text-70 text-sm">
-          Uploading... {{ uploadProgress }}%
-        </div>
+        <button
+          class="btn btn-default btn-primary inline-flex items-center relative mr-2"
+          :disabled="busy"
+          @click.prevent="libraryModalOpen = !libraryModalOpen">
+          Select from library
+        </button>
+      </div>
+      <div
+        v-if="uploadProgress > 0 && busy"
+        class="text-70 text-sm">
+        Uploading... {{ uploadProgress }}%
       </div>
 
       <div
@@ -52,6 +58,12 @@
         v-if="!error">
         {{ error }}
       </div>
+
+      <modal :open="libraryModalOpen">
+        <media-library
+          :base-url="field.previewUrl"
+          @select="handleImageSelection" />
+      </modal>
     </template>
   </default-field>
 </template>
@@ -60,6 +72,8 @@
 import axios from "axios"
 import Vapor from "laravel-vapor"
 import { FormField, HandlesValidationErrors } from "laravel-nova"
+import Modal from "./Modal"
+import MediaLibrary from "./MediaLibrary"
 
 export default {
   mixins: [FormField, HandlesValidationErrors],
@@ -72,11 +86,17 @@ export default {
       busy: false,
       path: null,
       error: null,
+      libraryModalOpen: false
     }
   },
 
   mounted () {
     console.log(this.field)
+  },
+
+  components: {
+    Modal,
+    MediaLibrary
   },
 
   methods: {
@@ -128,6 +148,11 @@ export default {
 
     openFileField () {
       this.$refs.file.click()
+    },
+
+    handleImageSelection (item) {
+      this.libraryModalOpen = false
+      this.value = item.path
     }
   },
 

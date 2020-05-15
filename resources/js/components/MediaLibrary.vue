@@ -5,7 +5,7 @@
     </h2>
 
     <div
-      class="ae-flex ae-flex-wrap ae--ml-2 ae--mr-2 ae-my-8 ae-overflow-y-auto ae-h-screen"
+      class="ae-flex ae-flex-wrap ae--ml-8 ae--mr-8 ae-px-8 ae-pt-6 ae-mt-8 ae-overflow-y-auto ae-h-screen ae-shadow-inner"
       style="max-height: 700px;"
       @scroll="handleScroll"
       ref="medias">
@@ -32,7 +32,7 @@
       </div>
     </div>
 
-    <div class="ae-mt-6 ae--ml-8 ae--mr-8 ae--mb-6 ae-p-6 ae-px-8 ae-bg-gray-300">
+    <div class="ae--ml-8 ae--mr-8 ae--mb-6 ae-p-6 ae-px-8 ae-bg-gray-300">
       Close
 
       <button @click.prevent="logScrollpos">

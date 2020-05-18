@@ -40,11 +40,17 @@
           @click.prevent="openFileField">
           Choose File
         </button>
-        <div
-          v-if="uploadProgress > 0 && busy"
-          class="text-70 text-sm">
-          Uploading... {{ uploadProgress }}%
-        </div>
+        <button
+          class="btn btn-default btn-primary inline-flex items-center relative mr-2"
+          :disabled="busy"
+          @click.prevent="libraryModalOpen = !libraryModalOpen">
+          Media Library
+        </button>
+      </div>
+      <div
+        v-if="uploadProgress > 0 && busy"
+        class="text-70 text-sm mt-1">
+        Uploading... {{ uploadProgress }}%
       </div>
 
       <div
@@ -52,6 +58,13 @@
         v-if="!error">
         {{ error }}
       </div>
+
+      <modal :open="libraryModalOpen">
+        <media-library
+          :base-url="field.previewUrl"
+          @select="handleImageSelection"
+          @close="libraryModalOpen = false" />
+      </modal>
     </template>
   </default-field>
 </template>
@@ -60,6 +73,8 @@
 import axios from "axios"
 import Vapor from "laravel-vapor"
 import { FormField, HandlesValidationErrors } from "laravel-nova"
+import Modal from "./Modal"
+import MediaLibrary from "./MediaLibrary"
 
 export default {
   mixins: [FormField, HandlesValidationErrors],
@@ -72,11 +87,17 @@ export default {
       busy: false,
       path: null,
       error: null,
+      libraryModalOpen: false
     }
   },
 
   mounted () {
     console.log(this.field)
+  },
+
+  components: {
+    Modal,
+    MediaLibrary
   },
 
   methods: {
@@ -105,12 +126,32 @@ export default {
           this.uploadProgress = Math.round(progress * 100)
         }
       }).then(response => {
+        return new Promise((resolve) => {
+          const reader = new FileReader()
+          reader.onload = (file) => {
+            var image = new Image()
+            image.src = file.target.result
+
+            image.onload = function() {
+              response.width = this.width
+              response.height = this.height
+
+              resolve(response)
+            }
+          }
+
+          reader.readAsDataURL(this.$refs.file.files[0])
+        })
+      })
+      .then(response => {
         return axios.post("/nova-custom/upload", {
           uuid: response.uuid,
           key: response.key,
           bucket: response.bucket,
           name: this.$refs.file.files[0].name,
-          content_type: this.$refs.file.files[0].type,
+          width: response.width,
+          height: response.height,
+          content_type: this.$refs.file.files[0].type
         })
       })
       .catch(e => {
@@ -128,6 +169,11 @@ export default {
 
     openFileField () {
       this.$refs.file.click()
+    },
+
+    handleImageSelection (item) {
+      this.libraryModalOpen = false
+      this.value = item.path
     }
   },
 

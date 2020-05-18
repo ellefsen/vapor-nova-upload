@@ -44,12 +44,12 @@
           class="btn btn-default btn-primary inline-flex items-center relative mr-2"
           :disabled="busy"
           @click.prevent="libraryModalOpen = !libraryModalOpen">
-          Select from library
+          Media Library
         </button>
       </div>
       <div
         v-if="uploadProgress > 0 && busy"
-        class="text-70 text-sm">
+        class="text-70 text-sm mt-1">
         Uploading... {{ uploadProgress }}%
       </div>
 
@@ -62,7 +62,8 @@
       <modal :open="libraryModalOpen">
         <media-library
           :base-url="field.previewUrl"
-          @select="handleImageSelection" />
+          @select="handleImageSelection"
+          @close="libraryModalOpen = false" />
       </modal>
     </template>
   </default-field>
@@ -125,12 +126,32 @@ export default {
           this.uploadProgress = Math.round(progress * 100)
         }
       }).then(response => {
+        return new Promise((resolve) => {
+          const reader = new FileReader()
+          reader.onload = (file) => {
+            var image = new Image()
+            image.src = file.target.result
+
+            image.onload = function() {
+              response.width = this.width
+              response.height = this.height
+
+              resolve(response)
+            }
+          }
+
+          reader.readAsDataURL(this.$refs.file.files[0])
+        })
+      })
+      .then(response => {
         return axios.post("/nova-custom/upload", {
           uuid: response.uuid,
           key: response.key,
           bucket: response.bucket,
           name: this.$refs.file.files[0].name,
-          content_type: this.$refs.file.files[0].type,
+          width: response.width,
+          height: response.height,
+          content_type: this.$refs.file.files[0].type
         })
       })
       .catch(e => {

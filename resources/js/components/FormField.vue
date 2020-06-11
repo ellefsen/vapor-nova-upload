@@ -38,7 +38,7 @@
           class="btn btn-default btn-primary inline-flex items-center relative mr-2"
           :disabled="busy"
           @click.prevent="openFileField">
-          Choose File
+          Upload File
         </button>
         <button
           class="btn btn-default btn-primary inline-flex items-center relative mr-2"
@@ -91,10 +91,6 @@ export default {
     }
   },
 
-  mounted () {
-    console.log(this.field)
-  },
-
   components: {
     Modal,
     MediaLibrary
@@ -125,7 +121,9 @@ export default {
         progress: progress => {
           this.uploadProgress = Math.round(progress * 100)
         }
-      }).then(response => {
+      })
+      /*
+      .then(response => {
         return new Promise((resolve) => {
           const reader = new FileReader()
           reader.onload = (file) => {
@@ -143,6 +141,7 @@ export default {
           reader.readAsDataURL(this.$refs.file.files[0])
         })
       })
+      */
       .then(response => {
         return axios.post("/nova-custom/upload", {
           uuid: response.uuid,

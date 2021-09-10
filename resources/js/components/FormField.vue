@@ -5,14 +5,27 @@
     <template slot="field">
       <div
         v-if="field.type && field.type === 'video'"
-        class="card relative card relative border border-lg border-50 overflow-hidden px-0 py-0 mb-4">
+        class="card relative border border-lg border-50 overflow-hidden px-0 py-0 mb-4">
         <video
           class="block w-full"
           controls="controls"
-          :src="videoPath" />
+          :src="filePath" />
       </div>
       <div
-        class="card relative card relative border border-lg border-50 overflow-hidden px-0 py-0 mb-4"
+        v-else-if="field.type && field.type === 'audio'"
+        class="relative overflow-hidden px-0 py-0 mb-4">
+        <audio
+          controls
+          :src="filePath">
+          Your browser does not support the audio element.
+        </audio>
+        <video
+          class="block w-full"
+          controls="controls"
+          :src="filePath" />
+      </div>
+      <div
+        class="card relative border border-lg border-50 overflow-hidden px-0 py-0 mb-4"
         v-else-if="value">
         <img
           :src="imagePath"
@@ -178,14 +191,23 @@ export default {
 
   computed: {
     accept () {
-      return this.field.type === "image" ? "image/*" : "video/mp4"
+      switch (this.field.type) {
+        case "image":
+          return "image/*"
+        case "video":
+          return "video/mp4"
+        case "audio":
+          return "audio/*"
+        default:
+          return ""
+      }
     },
 
     imagePath () {
       return `${this.field.previewUrl}/${this.value}?w=400&q=100&auto=format&fit=fill`
     },
 
-    videoPath () {
+    filePath () {
       return `${this.field.previewUrl}/${this.value}`
     }
   }

@@ -19,10 +19,6 @@
           :src="filePath">
           Your browser does not support the audio element.
         </audio>
-        <video
-          class="block w-full"
-          controls="controls"
-          :src="filePath" />
       </div>
       <div
         class="card relative border border-lg border-50 overflow-hidden px-0 py-0 mb-4"

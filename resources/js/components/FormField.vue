@@ -55,6 +55,13 @@
           @click.prevent="libraryModalOpen = !libraryModalOpen">
           Media Library
         </button>
+        <button
+          v-if="value !== null"
+          class="btn btn-default btn-primary inline-flex items-center relative mr-2"
+          :disabled="busy"
+          @click.prevent="value = null">
+          Remove
+        </button>
       </div>
       <div
         v-if="uploadProgress > 0 && busy"
@@ -162,14 +169,14 @@ export default {
           content_type: this.$refs.file.files[0].type
         })
       })
-      .catch(e => {
+      .catch(() => {
         this.error = "Upload process failed."
       })
       .then(response => {
         this.value = response.data.path
         this.busy = false
       })
-      .catch((e) => {
+      .catch(() => {
         this.error = "File validation failed."
         this.busy = false
       })

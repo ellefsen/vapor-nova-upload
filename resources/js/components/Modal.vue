@@ -33,22 +33,18 @@
     >
       <div
         v-if="showContent"
-        class="ae-relative ae-overflow-y-auto ae-max-h-screen ae-rounded ae-w-full ae-max-w-6xl">
-        <slot />
+        class="ae-relative ae-overflow-y-auto ae-max-h-screen ae-rounded ae-w-full ae-h-full">
+        <div class="ae-p-10">
+          <slot />
+        </div>
       </div>
     </transition>
   </div>
 </template>
 
 <script>
-import ModalContent from "./ModalContent"
-
 export default {
   props: ["open"],
-
-  components: {
-    ModalContent
-  },
 
   data() {
     return {

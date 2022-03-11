@@ -1,7 +1,29 @@
 <template>
   <div>
     <div
-      v-if="formData.files.length > 0"
+      class="ae-pt-2 ae-mt-4 ae--ml-8 ae--mr-8 ae-px-10 ae-shadow-inner">
+      <div class="ae-flex ae-items-center ae-justify-start ae-text-sm ae-overflow-hidden">
+        <button
+          @click.prevent="showCreateFolderDialog = !showCreateFolderDialog"
+          class="ae-font-semibold ae-py-3 ae-px-2 ae-rounded-sm hover:ae-bg-gray-200">
+          Create new folder
+        </button>
+        <transition name="ae-fade">
+          <div
+            v-if="formData.files.length > 0"
+            class="ae-ml-auto">
+            <span class="ae-mr-4 ae-inline-block ae-text-gray-700">{{ formData.files.length }} files selected</span>
+            <button
+              @click.prevent="showMoveDialog = !showMoveDialog"
+              class="ae-bg-gray-800 hover:ae-bg-gray-600 ae-text-white ae-px-6 ae-py-3 ae-rounded-sm ae-font-semibold">
+              Move
+            </button>
+          </div>
+        </transition>
+      </div>
+    </div>
+    <div
+      v-if="false"
       class="ae-pt-6 ae-mt-4 ae--ml-8 ae--mr-8 ae-px-10 ae-shadow-inner">
       <div class="flex items-center ae-justify-end">
         <span class="ae-mr-4 ae-inline-block ae-text-gray-700">{{ formData.files.length }} files selected</span>
@@ -12,7 +34,7 @@
         </button>
       </div>
     </div>
-    <div class="ae-pt-6 ae-mt-4 ae-shadow-inner ae--ml-8 ae--mr-8 ae-px-8 ae-relative">
+    <div class="ae-pt-6 ae-mt-2 ae-shadow-inner ae--ml-8 ae--mr-8 ae-px-8 ae-relative">
       <div class="ae-flex ae-text-xl ae-mb-4 ae-px-2">
         <a
           v-if="data.parent"
@@ -71,23 +93,56 @@
 
     <modal :open="showMoveDialog">
       <div class="ae-m-10 ae-p-8 lg:ae-py-20 ae-flex ae-items-center ae-justify-center ae-absolute ae-inset-0">
-        <div class="ae-w-full ae-h-full ae-overflow-y-auto ae-max-w-3xl ae-bg-white ae-rounded-md ae-shadow-lg ae-p-8">
-          <category-list-select
-            @select="handleCategorySelection"
-            :selected="formData.media_category_id" />
+        <div class="ae-w-full ae-h-full ae-overflow-auto ae-max-w-3xl ae-bg-white ae-rounded-md ae-shadow-lg ae-p-8">
+          <div class="ae-flex ae-flex-col">
+            <div class="ae-max-h-128 ae-flex-shrink ae-overflow-auto">
+              <category-list-select
+                v-if="showMoveDialog"
+                @select="handleCategorySelection"
+                :selected="formData.media_category_id" />
+            </div>
+
+            <div class="ae-flex ae-flex-shrink-0 ae-justify-end ae-pt-6 ae-border-t ae-mt-4">
+              <button
+                @click.prevent="showMoveDialog = !showMoveDialog"
+                class="ae-bg-gray-400 hover:ae-bg-gray-500 ae-px-6 ae-py-3 ae-rounded-sm ae-font-semibold ae-mr-2">
+                Cancel
+              </button>
+              <button
+                :disabled="formData.media_category_id === null || formData.files.length === 0"
+                @click.prevent="submitMove"
+                :class="{ 'ae-bg-gray-200': formData.media_category_id === null || formData.files.length === 0, 'ae-bg-gray-800 hover:ae-bg-gray-600 ae-text-white': formData.media_category_id !== null && formData.files.length > 0 }"
+                class="ae-px-6 ae-py-3 ae-rounded-sm ae-font-semibold">
+                Move
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </modal>
+
+    <modal :open="showCreateFolderDialog">
+      <div class="ae-m-10 ae-p-8 lg:ae-py-20 ae-flex ae-items-center ae-justify-center">
+        <div class="ae-w-full ae-overflow-y-auto ae-max-w-3xl ae-bg-white ae-rounded-md ae-shadow-lg ae-p-8">
+          <input
+            v-model="createFolderFormData.name"
+            ref="createFolderInput"
+            class="ae-block ae-appearance-none ae-w-full ae-bg-white ae-border ae-border-gray-300 ae-px-4 ae-py-3 ae-pr-8 ae-rounded-sm ae-leading-tight ae-focus:outline-none ae-focus:shadow-outline ae-text-gray-800"
+            type="text"
+            placeholder="Folder name"
+            autofocus>
 
           <div class="flex justify-end pt-6">
             <button
-              @click.prevent="showMoveDialog = !showMoveDialog"
+              @click.prevent="showCreateFolderDialog = !showCreateFolderDialog"
               class="ae-bg-gray-400 hover:ae-bg-gray-500 ae-px-6 ae-py-3 ae-rounded-sm ae-font-semibold ae-mr-2">
               Cancel
             </button>
             <button
-              :disabled="formData.media_category_id === null || formData.files.length === 0"
-              @click.prevent="submitMove"
-              :class="{ 'ae-bg-gray-200': formData.media_category_id === null || formData.files.length === 0, 'ae-bg-gray-800 hover:ae-bg-gray-600 ae-text-white': formData.media_category_id !== null && formData.files.length > 0 }"
+              @click.prevent="submitCreateFolder"
+              :class="{ 'ae-bg-gray-200': createFolderFormData.name === null, 'ae-bg-gray-800 hover:ae-bg-gray-600 ae-text-white': createFolderFormData.name !== null }"
               class="ae-px-6 ae-py-3 ae-rounded-sm ae-font-semibold">
-              Move
+              Create
             </button>
           </div>
         </div>
@@ -129,9 +184,13 @@ export default {
       },
       fetching: false,
       showMoveDialog: false,
+      showCreateFolderDialog: false,
       formData: {
         files: [],
         media_category_id: null
+      },
+      createFolderFormData: {
+        name: null
       },
       submittingMove: false,
       activeCategory: null
@@ -170,6 +229,22 @@ export default {
           this.showMoveDialog = false
           this.formData.files = []
           this.formData.media_category_id = null
+        })
+    },
+
+    submitCreateFolder () {
+      this.submittingCreateFolder = true
+
+      let categoryId = this.activeCategory ? this.activeCategory.id : null
+      console.log("payload", { ...this.createFolderFormData, parent_id: categoryId })
+
+      window.axios.post("/nova-custom/media-categories", { ...this.createFolderFormData, parent_id: categoryId })
+        .then((response) => {
+          this.activeCategory = response.data.data
+          this.fetchCategories(this.activeCategory)
+          this.submittingCreateFolder = false
+          this.showCreateFolderDialog = false
+          this.createFolderFormData.name = null
         })
     }
   }

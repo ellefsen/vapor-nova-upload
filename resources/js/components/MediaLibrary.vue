@@ -15,8 +15,13 @@
       </div>
 
       <button
+        class="ae-bg-gray-800 hover:ae-bg-gray-600 ae-text-white ae-px-4 ae-py-3 ae-rounded-sm ae-font-semibold ae-mr-2 ae-ml-auto"
+        @click.prevent="$emit('addNew')">
+        Upload File
+      </button>
+      <button
         @click.prevent="$emit('close')"
-        class="ae-bg-gray-800 hover:ae-bg-gray-600 ae-text-white ae-px-8 ae-py-3 ae-rounded-lg ae-font-semibold">
+        class="ae-bg-gray-800 hover:ae-bg-gray-600 ae-text-white ae-px-4 ae-py-3 ae-rounded-sm ae-font-semibold">
         Close
       </button>
     </div>
@@ -50,6 +55,7 @@
       :open="mediaPanelVisible"
       :base-url="baseUrl"
       :active-media="activeMedia"
+      @update="handleMediaUpdate"
       @close="mediaPanelVisible = false" />
   </div>
 </template>
@@ -91,6 +97,10 @@ export default {
     showMediaPanel (item) {
       this.activeMedia = item
       this.mediaPanelVisible = true
+    },
+
+    handleMediaUpdate (item) {
+      this.activeMedia = item
     }
   },
 

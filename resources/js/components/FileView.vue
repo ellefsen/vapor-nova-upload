@@ -10,7 +10,7 @@
       <media-card
         :item="item"
         :base-url="baseUrl"
-        @open="$emit('open')"
+        @open="$emit('open', item)"
         @select="$emit('select')" />
     </div>
     <div

@@ -79,7 +79,8 @@
         <media-library
           :base-url="field.previewUrl"
           @select="handleImageSelection"
-          @close="libraryModalOpen = false" />
+          @close="libraryModalOpen = false"
+          @addNew="openFileField" />
       </modal>
     </template>
   </default-field>

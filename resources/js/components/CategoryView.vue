@@ -1,55 +1,105 @@
 <template>
-  <div class="ae-pt-6 ae-mt-4 ae-shadow-inner ae--ml-8 ae--mr-8 ae-px-8">
-    <div class="ae-flex ae-text-xl ae-mb-4 ae-px-2">
-      <a
-        v-if="data.parent"
-        href="#"
-        @click.prevent="fetchCategories(data.parent)"
-        class="ae-mr-2 ae-inline-block ae-no-underline hover:ae-underline ae-text-gray-700">{{ data.parent.name }}</a>
-      <a
-        v-else-if="!data.parent && data.current"
-        href="#"
-        @click.prevent="fetchCategories"
-        class="ae-mr-2 ae-inline-block ae-no-underline hover:ae-underline ae-text-gray-700">Home</a>
-      <span v-if="data.current"><span>/</span> {{ data.current.name }}</span>
+  <div>
+    <div
+      v-if="formData.files.length > 0"
+      class="ae-pt-6 ae-mt-4 ae--ml-8 ae--mr-8 ae-px-10 ae-shadow-inner">
+      <div class="flex items-center ae-justify-end">
+        <span class="ae-mr-4 ae-inline-block ae-text-gray-700">{{ formData.files.length }} files selected</span>
+        <button
+          @click.prevent="showMoveDialog = !showMoveDialog"
+          class="ae-bg-gray-800 hover:ae-bg-gray-600 ae-text-white ae-px-6 ae-py-3 ae-rounded-sm ae-font-semibold">
+          Move
+        </button>
+      </div>
     </div>
-    <div class="ae-flex ae-flex-wrap ae-overflow-y-auto ae-h-screen">
-      <template v-if="data.categories.length > 0">
-        <div
-          v-for="(category,cIndex) in data.categories"
-          :key="`cat-${cIndex}`"
-          class="ae-px-2 ae-pb-4 ae-w-3/12 lg:ae-w-2/12">
-          <a
-            href="#"
-            @click.prevent="fetchCategories(category)"
-            class="ae-border ae-border-gray-300 ae-w-full ae-block ae-no-underline">
-            <div
-              class="ae-bg-gray-200 ae-object-contain ae-pb-full ae-bg-contain ae-bg-no-repeat ae-bg-center"
-              :style="{ 'background-image': `url('#')`}" />
-            <div class="ae-p-2 ae-text-center">
-              <span class="ae-block ae-rounded-sm ae-text-xs ae-text-gray-700 ae-leading-none ae-uppercase ae-font-bold">{{ category.name }}</span>
+    <div class="ae-pt-6 ae-mt-4 ae-shadow-inner ae--ml-8 ae--mr-8 ae-px-8 ae-relative">
+      <div class="ae-flex ae-text-xl ae-mb-4 ae-px-2">
+        <a
+          v-if="data.parent"
+          href="#"
+          @click.prevent="fetchCategories(data.parent)"
+          class="ae-mr-2 ae-inline-block ae-no-underline hover:ae-underline ae-text-gray-700">{{ data.parent.name }}</a>
+        <a
+          v-else-if="!data.parent && data.current"
+          href="#"
+          @click.prevent="fetchCategories"
+          class="ae-mr-2 ae-inline-block ae-no-underline hover:ae-underline ae-text-gray-700">Home</a>
+        <span v-if="data.current"><span>/</span> {{ data.current.name }}</span>
+      </div>
+      <div class="ae-flex ae-flex-wrap ae-overflow-y-auto ae-h-screen">
+        <template v-if="data.categories.length > 0">
+          <div
+            v-for="(category,cIndex) in data.categories"
+            :key="`cat-${cIndex}`"
+            class="ae-px-2 ae-pb-4 ae-w-3/12 lg:ae-w-2/12">
+            <a
+              href="#"
+              @click.prevent="fetchCategories(category)"
+              class="ae-border ae-border-gray-300 ae-w-full ae-block ae-no-underline">
+              <div
+                class="ae-bg-gray-200 ae-object-contain ae-pb-full ae-bg-contain ae-bg-no-repeat ae-bg-center"
+                :style="{ 'background-image': `url('#')`}" />
+              <div class="ae-p-2 ae-text-center">
+                <span class="ae-block ae-rounded-sm ae-text-xs ae-text-gray-700 ae-leading-none ae-uppercase ae-font-bold">{{ category.name }}</span>
+              </div>
+            </a>
+          </div>
+        </template>
+        <template v-if="data.files.length > 0">
+          <div
+            v-for="(item,fIndex) in data.files"
+            :key="`file-${fIndex}`"
+            class="ae-px-2 ae-pb-4 ae-w-3/12 lg:ae-w-2/12 ae-relative">
+            <media-card
+              :item="item"
+              :base-url="baseUrl"
+              @open="$emit('open', item)"
+              @select="$emit('select')" />
+            <div class="ae-absolute ae-top-0 ae-left-0 ae-p-2 ae-px-4">
+              <input
+                v-model="formData.files"
+                type="checkbox"
+                :id="`file-${item.id}`"
+                :value="item.id"
+                name="selectedFiles"
+                checked>
             </div>
-          </a>
-        </div>
-      </template>
-      <template v-if="data.files.length > 0">
-        <div
-          v-for="(item,fIndex) in data.files"
-          :key="`file-${fIndex}`"
-          class="ae-px-2 ae-pb-4 ae-w-3/12 lg:ae-w-2/12">
-          <media-card
-            :item="item"
-            :base-url="baseUrl"
-            @open="$emit('open', item)"
-            @select="$emit('select')" />
-        </div>
-      </template>
+          </div>
+        </template>
+      </div>
     </div>
+
+    <modal :open="showMoveDialog">
+      <div class="ae-m-10 ae-p-8 lg:ae-py-20 ae-flex ae-items-center ae-justify-center ae-absolute ae-inset-0">
+        <div class="ae-w-full ae-h-full ae-overflow-y-auto ae-max-w-3xl ae-bg-white ae-rounded-md ae-shadow-lg ae-p-8">
+          <category-list-select
+            @select="handleCategorySelection"
+            :selected="formData.media_category_id" />
+
+          <div class="flex justify-end pt-6">
+            <button
+              @click.prevent="showMoveDialog = !showMoveDialog"
+              class="ae-bg-gray-400 hover:ae-bg-gray-500 ae-px-6 ae-py-3 ae-rounded-sm ae-font-semibold ae-mr-2">
+              Cancel
+            </button>
+            <button
+              :disabled="formData.media_category_id === null || formData.files.length === 0"
+              @click.prevent="submitMove"
+              :class="{ 'ae-bg-gray-200': formData.media_category_id === null || formData.files.length === 0, 'ae-bg-gray-800 hover:ae-bg-gray-600 ae-text-white': formData.media_category_id !== null && formData.files.length > 0 }"
+              class="ae-px-6 ae-py-3 ae-rounded-sm ae-font-semibold">
+              Move
+            </button>
+          </div>
+        </div>
+      </div>
+    </modal>
   </div>
 </template>
 
 <script>
 import MediaCard from "./MediaCard.vue"
+import Modal from "./Modal.vue"
+import CategoryListSelect from "./CategoryListSelect.vue"
 
 export default {
   props: {
@@ -60,7 +110,9 @@ export default {
   },
 
   components: {
-    MediaCard
+    CategoryListSelect,
+    MediaCard,
+    Modal
   },
 
   created () {
@@ -76,12 +128,20 @@ export default {
         current: null
       },
       fetching: false,
+      showMoveDialog: false,
+      formData: {
+        files: [],
+        media_category_id: null
+      },
+      submittingMove: false,
+      activeCategory: null
     }
   },
 
   methods: {
     fetchCategories (item = null) {
       this.fetching = true
+      this.activeCategory = item
 
       let path = "/nova-custom/media-categories"
 
@@ -93,6 +153,23 @@ export default {
         .then(response => {
           this.data = response.data.data
           this.fetching = false
+        })
+    },
+
+    handleCategorySelection (category) {
+      this.formData.media_category_id = category.id
+    },
+
+    submitMove () {
+      this.submittingMove = true
+
+      window.axios.post("/nova-custom/media-categories/move-files", this.formData)
+        .then((response) => {
+          this.fetchCategories(this.activeCategory)
+          this.submittingMove = false
+          this.showMoveDialog = false
+          this.formData.files = []
+          this.formData.media_category_id = null
         })
     }
   }

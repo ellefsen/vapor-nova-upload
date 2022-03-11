@@ -93,29 +93,28 @@
 
     <modal :open="showMoveDialog">
       <div class="ae-m-10 ae-p-8 lg:ae-py-20 ae-flex ae-items-center ae-justify-center ae-absolute ae-inset-0">
-        <div class="ae-w-full ae-h-full ae-overflow-auto ae-max-w-3xl ae-bg-white ae-rounded-md ae-shadow-lg ae-p-8">
-          <div class="ae-flex ae-flex-col">
-            <div class="ae-max-h-128 ae-flex-shrink ae-overflow-auto">
-              <category-list-select
-                v-if="showMoveDialog"
-                @select="handleCategorySelection"
-                :selected="formData.media_category_id" />
-            </div>
+        <div class="ae-w-full ae-h-full ae-max-w-3xl ae-bg-white ae-rounded-md ae-shadow-lg ae-flex ae-flex-col ae-justify-between">
+          <div class="ae-max-h-128 ae-flex-shrink ae-overflow-auto">
+            <category-list-select
+              class="ae-p-8"
+              v-if="showMoveDialog"
+              @select="handleCategorySelection"
+              :selected="formData.media_category_id" />
+          </div>
 
-            <div class="ae-flex ae-flex-shrink-0 ae-justify-end ae-pt-6 ae-border-t ae-mt-4">
-              <button
-                @click.prevent="showMoveDialog = !showMoveDialog"
-                class="ae-bg-gray-400 hover:ae-bg-gray-500 ae-px-6 ae-py-3 ae-rounded-sm ae-font-semibold ae-mr-2">
-                Cancel
-              </button>
-              <button
-                :disabled="formData.media_category_id === null || formData.files.length === 0"
-                @click.prevent="submitMove"
-                :class="{ 'ae-bg-gray-200': formData.media_category_id === null || formData.files.length === 0, 'ae-bg-gray-800 hover:ae-bg-gray-600 ae-text-white': formData.media_category_id !== null && formData.files.length > 0 }"
-                class="ae-px-6 ae-py-3 ae-rounded-sm ae-font-semibold">
-                Move
-              </button>
-            </div>
+          <div class="ae-flex ae-flex-shrink-0 ae-justify-end ae-pt-6 ae-border-t ae-border-gray-300 ae-px-8 ae-pb-6">
+            <button
+              @click.prevent="showMoveDialog = !showMoveDialog"
+              class="ae-bg-gray-400 hover:ae-bg-gray-500 ae-px-6 ae-py-3 ae-rounded-sm ae-font-semibold ae-mr-2">
+              Cancel
+            </button>
+            <button
+              :disabled="formData.media_category_id === null || formData.files.length === 0"
+              @click.prevent="submitMove"
+              :class="{ 'ae-bg-gray-200': formData.media_category_id === null || formData.files.length === 0, 'ae-bg-gray-800 hover:ae-bg-gray-600 ae-text-white': formData.media_category_id !== null && formData.files.length > 0 }"
+              class="ae-px-6 ae-py-3 ae-rounded-sm ae-font-semibold">
+              Move
+            </button>
           </div>
         </div>
       </div>

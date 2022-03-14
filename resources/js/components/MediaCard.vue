@@ -3,7 +3,7 @@
     href="#"
     @click.prevent="$emit('open', item)"
     class="hover:ae-border ae-border-gray-300 ae-w-full ae-block ae-no-underline ae-text-black">
-    <div class="ae-relative ae-pb-full">
+    <div class="ae-bg-gray-100 ae-relative ae-pb-full">
       <figure class="ae-absolute ae-w-full ae-h-full ae-mx-auto">
         <img
           :src="`${baseUrl}/${item.path}?w=240&fit=crop&q=80`"

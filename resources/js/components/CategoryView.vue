@@ -1,13 +1,20 @@
 <template>
   <div>
     <div
-      class="ae-pt-2 ae-mt-4 ae--ml-8 ae--mr-8 ae-px-10 ae-shadow-inner">
+      class="ae-pt-2 ae-mt-4 ae--ml-10 ae--mr-10 ae-px-10 ae-shadow-inner">
       <div class="ae-flex ae-items-center ae-justify-start ae-text-sm ae-overflow-hidden">
-        <button
-          @click.prevent="showCreateFolderDialog = !showCreateFolderDialog"
-          class="ae-font-semibold ae-py-3 ae-px-2 ae-rounded-sm hover:ae-bg-gray-200">
-          Create new folder
-        </button>
+        <div class="ae-grid ae-grid-flow-col ae-gap-1">
+          <button
+            @click.prevent="showCreateFolderDialog = !showCreateFolderDialog"
+            class="ae-font-semibold ae-py-3 ae-px-2 ae-rounded-sm hover:ae-bg-gray-200">
+            Create new folder
+          </button>
+          <button
+            @click.prevent="$emit('addMedia', activeCategory ? activeCategory.id : null)"
+            class="ae-font-semibold ae-py-3 ae-px-2 ae-rounded-sm hover:ae-bg-gray-200">
+            Upload file
+          </button>
+        </div>
         <transition name="ae-fade">
           <div
             v-if="formData.files.length > 0"
@@ -22,19 +29,7 @@
         </transition>
       </div>
     </div>
-    <div
-      v-if="false"
-      class="ae-pt-6 ae-mt-4 ae--ml-8 ae--mr-8 ae-px-10 ae-shadow-inner">
-      <div class="flex items-center ae-justify-end">
-        <span class="ae-mr-4 ae-inline-block ae-text-gray-700">{{ formData.files.length }} files selected</span>
-        <button
-          @click.prevent="showMoveDialog = !showMoveDialog"
-          class="ae-bg-gray-800 hover:ae-bg-gray-600 ae-text-white ae-px-6 ae-py-3 ae-rounded-sm ae-font-semibold">
-          Move
-        </button>
-      </div>
-    </div>
-    <div class="ae-pt-6 ae-mt-2 ae-shadow-inner ae--ml-8 ae--mr-8 ae-px-8 ae-relative">
+    <div class="ae-pt-6 ae-mt-2 ae-shadow-inner ae-px-8 ae--ml-8 ae--mr-8 ae-relative">
       <div class="ae-flex ae-text-xl ae-mb-4 ae-px-2">
         <a
           v-if="data.parent"
@@ -57,20 +52,34 @@
             <a
               href="#"
               @click.prevent="fetchCategories(category)"
-              class="ae-border ae-border-gray-300 ae-w-full ae-block ae-no-underline">
+              class="ae-w-full ae-block ae-no-underline">
               <div
-                class="ae-bg-gray-200 ae-object-contain ae-pb-full ae-bg-contain ae-bg-no-repeat ae-bg-center"
-                :style="{ 'background-image': `url('#')`}" />
+                class="ae-bg-gray-100 ae-pb-full ae-relative">
+                <div class="ae-absolute ae-inset-0 ae-flex ae-justify-center ae-items-center ae-text-gray-400">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-full m-8"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="1">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                  </svg>
+                </div>
+              </div>
               <div class="ae-p-2 ae-text-center">
-                <span class="ae-block ae-rounded-sm ae-text-xs ae-text-gray-700 ae-leading-none ae-uppercase ae-font-bold">{{ category.name }}</span>
+                <span class="ae-block ae-rounded-sm ae-text-xs ae-text-gray-700 ae-leading-none ae-uppercase ae-font-bold ae-h-6 overflow-hidden">{{ category.name }}</span>
               </div>
             </a>
           </div>
         </template>
         <template v-if="data.files.length > 0">
           <div
-            v-for="(item,fIndex) in data.files"
-            :key="`file-${fIndex}`"
+            v-for="(item) in data.files"
+            :key="`file-${item.id}`"
             class="ae-px-2 ae-pb-4 ae-w-3/12 lg:ae-w-2/12 ae-relative">
             <media-card
               :item="item"
@@ -161,6 +170,11 @@ export default {
       type: String,
       default: null
     },
+
+    fieldValue: {
+      type: String,
+      default: null
+    },
   },
 
   components: {
@@ -245,6 +259,12 @@ export default {
           this.showCreateFolderDialog = false
           this.createFolderFormData.name = null
         })
+    }
+  },
+
+  watch: {
+    fieldValue () {
+      this.fetchCategories(this.activeCategory)
     }
   }
 }

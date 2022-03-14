@@ -28,10 +28,10 @@ export default {
 
   mounted () {
     window.axios.get("/nova-custom/media-categories/list")
-        .then(response => {
-          this.data = response.data.data
-          this.fetching = false
-        })
+      .then(response => {
+        this.data = response.data.data
+        this.fetching = false
+      })
   },
 
   data () {

@@ -13,12 +13,6 @@
           placeholder="Filter by filename"
           @focus="$emit('focus')">
       </div>
-
-      <button
-        class="ae-bg-gray-800 hover:ae-bg-gray-600 ae-text-white ae-px-4 ae-py-3 ae-rounded-sm ae-font-semibold ae-mr-2 ae-ml-auto"
-        @click.prevent="$emit('addNew')">
-        Upload File
-      </button>
       <button
         @click.prevent="$emit('close')"
         class="ae-bg-gray-800 hover:ae-bg-gray-600 ae-text-white ae-px-4 ae-py-3 ae-rounded-sm ae-font-semibold">
@@ -48,6 +42,8 @@
     <category-view
       v-else-if="view === 'category'"
       :base-url="baseUrl"
+      :field-value="fieldValue"
+      @addMedia="$emit('addMedia', $event)"
       @open="showMediaPanel"
       @select="selectMedia" />
 
@@ -55,6 +51,7 @@
       :open="mediaPanelVisible"
       :base-url="baseUrl"
       :active-media="activeMedia"
+      @select="selectMedia"
       @update="handleMediaUpdate"
       @close="mediaPanelVisible = false" />
   </div>
@@ -69,7 +66,19 @@ export default {
   props: {
     baseUrl: {
       type: String,
-      default: ""
+      default: null
+    },
+
+    fieldValue: {
+      type: String,
+      default: null
+    },
+
+    media: {
+      type: Object,
+      default () {
+        return {}
+      }
     }
   },
 
@@ -108,6 +117,10 @@ export default {
     search () {
       this.data = []
       this.view = "file"
+    },
+
+    media (value) {
+      this.showMediaPanel(value)
     }
   }
 }

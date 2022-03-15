@@ -19,6 +19,7 @@
     "dependencies": {
         "@fullhuman/postcss-purgecss": "^2.2.0",
         "lodash": "^4.17.15",
+        "mitt": "^3.0.0",
         "tailwindcss": "^1.4.6",
         "vue": "^2.5.0"
     }

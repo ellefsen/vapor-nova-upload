@@ -2,10 +2,10 @@
   <div>
     <div
       v-if="open"
-      class="ae-absolute ae-inset-0 ae-bg-black ae-bg-opacity-25 ae-cursor-pointer"
+      class="ae-absolute ae-z-10 ae-inset-0 ae-bg-black ae-bg-opacity-25 ae-cursor-pointer"
       @click.prevent="$emit('close')" />
     <div
-      class="ae-absolute ae-top-0 ae-right-0 ae-bg-gray-900 ae-h-full ae-w-full ae-max-w-3xl xl:ae-max-w-4xl ae-transform ae-transition-transform ae-duration-150 ae-ease-in-out ae-flex ae-flex-col"
+      class="ae-absolute ae-z-10 ae-top-0 ae-right-0 ae-bg-gray-900 ae-h-full ae-w-full ae-max-w-3xl xl:ae-max-w-4xl ae-transform ae-transition-transform ae-duration-150 ae-ease-in-out ae-flex ae-flex-col"
       :class="{ 'ae-translate-x-full': !open }">
       <div
         class="ae-overflow-hidden ae-overflow-y-auto ae-h-full"
@@ -61,7 +61,7 @@
                   placeholder="Name">
               </div>
             </div>
-            <div>
+            <div v-if="false">
               <span class="ae-block ae-rounded-sm ae-text-xs ae-leading-none ae-uppercase ae-font-bold ae-truncate ae-mb-2">Alt Text</span>
               <div
                 v-if="!editMode"
@@ -137,6 +137,8 @@
 </template>
 
 <script>
+import EventBus from "../utils/eventBus.js"
+
 export default {
   props: {
     open: {
@@ -171,7 +173,7 @@ export default {
   watch: {
     activeMedia (value) {
       this.formData.name = value.name
-      this.formData.name = value.alt_text
+      this.formData.alt_text = value.alt_text
       this.formData.media_category_id = value.media_category_id
     }
   },
@@ -182,8 +184,10 @@ export default {
       window.axios.patch(`/nova-custom/media/${this.activeMedia.id}`, this.formData)
         .then((response) => {
           this.$emit("update", response.data.data)
-          console.log("success", response)
+          EventBus.emit("updateMedia", response.data.data)
           this.submitting = false
+          this.editMode = false
+          this.$emit("close")
         })
     }
   }

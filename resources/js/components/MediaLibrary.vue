@@ -1,6 +1,6 @@
 <template>
-  <div class="ae-media-lib ae-w-full ae-bg-white ae-p-6 ae-px-8 ae-rounded-md ae-shadow-lg ae-overflow-hidden ae-flex ae-flex-col ae-relative">
-    <div class="ae-flex ae-justify-between ae-items-center ae-mx-2">
+  <div class="ae-media-lib ae-w-full ae-bg-white ae-rounded-md ae-shadow-lg ae-overflow-hidden ae-flex ae-flex-col ae-relative">
+    <div class="ae-flex ae-justify-between ae-items-center ae-px-10 ae-pt-6">
       <h2 class="ae-text-gray-700 ae-text-2xl ae-leading-tight">
         Media Library
       </h2>
@@ -20,17 +20,17 @@
       </button>
     </div>
 
-    <div class="ae-flex ae-justify-start ae-mt-2 ae-mx-2">
+    <div class="ae-flex ae-justify-start ae-px-10 ae-py-2 ae-pb-4 ae-shadow-edge">
       <a
         href="#"
         @click.prevent="view = 'file'"
         class="ae-uppercase ae-text-sm ae-font-bold ae-mr-2 ae-no-underline"
-        :class="{ 'ae-text-black': view == 'file', 'ae-text-gray-500': view != 'file'}">All</a>
+        :class="{ 'ae-text-gray-700': view == 'file', 'ae-text-gray-500': view != 'file'}">All</a>
       <a
         href="#"
         @click.prevent="view = 'category'"
         class="ae-uppercase ae-text-sm ae-font-bold ae-mr-2 ae-no-underline"
-        :class="{ 'ae-text-black': view == 'category', 'ae-text-gray-500': view != 'category'}">Folders</a>
+        :class="{ 'ae-text-gray-700': view == 'category', 'ae-text-gray-500': view != 'category'}">Folders</a>
     </div>
 
     <file-view

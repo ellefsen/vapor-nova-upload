@@ -22,6 +22,7 @@
 </template>
 
 <script>
+import EventBus from "../utils/eventBus.js"
 import { debounce } from "lodash"
 import Loader from "./Loader.vue"
 import MediaCard from "./MediaCard.vue"
@@ -46,6 +47,8 @@ export default {
 
   created () {
     this.fetchMedia()
+
+    EventBus.on("updateMedia", () => this.fetchMedia())
   },
 
   data () {

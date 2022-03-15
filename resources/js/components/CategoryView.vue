@@ -1,17 +1,16 @@
 <template>
-  <div>
-    <div
-      class="ae-pt-2 ae-mt-4 ae--ml-10 ae--mr-10 ae-px-10 ae-shadow-inner">
-      <div class="ae-flex ae-items-center ae-justify-start ae-text-sm ae-overflow-hidden">
+  <div class="ae-flex ae-flex-col ae-h-full ae-overflow-y-auto ae-relative">
+    <div class="ae-mt-2 ae-pb-2 ae-pl-8 ae-pr-10 ae-shadow-edge ae-sticky ae-top-0 ae-z-10 ae-bg-white">
+      <div class="ae-flex ae-items-center ae-justify-start ae-text-sm">
         <div class="ae-grid ae-grid-flow-col ae-gap-1">
           <button
             @click.prevent="showCreateFolderDialog = !showCreateFolderDialog"
-            class="ae-font-semibold ae-py-3 ae-px-2 ae-rounded-sm hover:ae-bg-gray-200">
+            class="ae-font-semibold ae-py-3 ae-px-2 ae-rounded-sm hover:ae-bg-gray-200 ae-text-gray-700 focus:ae-outline-none">
             Create new folder
           </button>
           <button
             @click.prevent="$emit('addMedia', activeCategory ? activeCategory.id : null)"
-            class="ae-font-semibold ae-py-3 ae-px-2 ae-rounded-sm hover:ae-bg-gray-200">
+            class="ae-font-semibold ae-py-3 ae-px-2 ae-rounded-sm hover:ae-bg-gray-200 ae-text-gray-700 focus:ae-outline-none">
             Upload file
           </button>
         </div>
@@ -29,8 +28,15 @@
         </transition>
       </div>
     </div>
-    <div class="ae-pt-6 ae-mt-2 ae-shadow-inner ae-px-8 ae--ml-8 ae--mr-8 ae-relative">
-      <div class="ae-flex ae-text-xl ae-mb-4 ae-px-2">
+    <div
+      class="ae-p-12 ae-flex ae-items-center ae-justify-center"
+      v-if="fetching">
+      <loader />
+    </div>
+    <div
+      v-else
+      class="ae-px-8 ae-relative ae-flex-shrink-0 ae-overflow-y-auto">
+      <div class="ae-flex ae-text-xl ae-mb-4 ae-px-2 ae-pt-4">
         <a
           v-if="data.parent"
           href="#"
@@ -43,7 +49,7 @@
           class="ae-mr-2 ae-inline-block ae-no-underline hover:ae-underline ae-text-gray-700">Home</a>
         <span v-if="data.current"><span>/</span> {{ data.current.name }}</span>
       </div>
-      <div class="ae-flex ae-flex-wrap ae-overflow-y-auto ae-h-screen">
+      <div class="ae-flex ae-flex-wrap">
         <template v-if="data.categories.length > 0">
           <div
             v-for="(category,cIndex) in data.categories"
@@ -58,7 +64,7 @@
                 <div class="ae-absolute ae-inset-0 ae-flex ae-justify-center ae-items-center ae-text-gray-400">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    class="w-full m-8"
+                    class="ae-w-full ae-m-8"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -160,9 +166,11 @@
 </template>
 
 <script>
+import EventBus from "../utils/eventBus.js"
 import MediaCard from "./MediaCard.vue"
 import Modal from "./Modal.vue"
 import CategoryListSelect from "./CategoryListSelect.vue"
+import Loader from "./Loader.vue"
 
 export default {
   props: {
@@ -180,11 +188,14 @@ export default {
   components: {
     CategoryListSelect,
     MediaCard,
-    Modal
+    Modal,
+    Loader
   },
 
   created () {
     this.fetchCategories()
+
+    EventBus.on("updateMedia", () => this.fetchCategories(this.activeCategory))
   },
 
   data () {
@@ -226,6 +237,9 @@ export default {
           this.data = response.data.data
           this.fetching = false
         })
+        .catch(() => {
+          this.fetching = false
+        })
     },
 
     handleCategorySelection (category) {
@@ -236,12 +250,15 @@ export default {
       this.submittingMove = true
 
       window.axios.post("/nova-custom/media-categories/move-files", this.formData)
-        .then((response) => {
+        .then(() => {
           this.fetchCategories(this.activeCategory)
           this.submittingMove = false
           this.showMoveDialog = false
           this.formData.files = []
           this.formData.media_category_id = null
+        })
+        .catch(() => {
+          this.submittingMove = false
         })
     },
 
@@ -249,7 +266,6 @@ export default {
       this.submittingCreateFolder = true
 
       let categoryId = this.activeCategory ? this.activeCategory.id : null
-      console.log("payload", { ...this.createFolderFormData, parent_id: categoryId })
 
       window.axios.post("/nova-custom/media-categories", { ...this.createFolderFormData, parent_id: categoryId })
         .then((response) => {
@@ -258,6 +274,9 @@ export default {
           this.submittingCreateFolder = false
           this.showCreateFolderDialog = false
           this.createFolderFormData.name = null
+        })
+        .catch(() => {
+          this.submittingCreateFolder = false
         })
     }
   },

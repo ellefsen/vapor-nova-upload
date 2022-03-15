@@ -46,12 +46,6 @@
         <button
           class="btn btn-default btn-primary inline-flex items-center relative mr-2"
           :disabled="busy"
-          @click.prevent="openFileField">
-          Upload File
-        </button>
-        <button
-          class="btn btn-default btn-primary inline-flex items-center relative mr-2"
-          :disabled="busy"
           @click.prevent="libraryModalOpen = !libraryModalOpen">
           Media Library
         </button>
@@ -77,7 +71,10 @@
 
       <modal :open="libraryModalOpen">
         <media-library
+          :field-value="value"
+          :media="media"
           :base-url="field.previewUrl"
+          @addMedia="openFileField($event)"
           @select="handleImageSelection"
           @close="libraryModalOpen = false" />
       </modal>
@@ -103,7 +100,9 @@ export default {
       busy: false,
       path: null,
       error: null,
-      libraryModalOpen: false
+      libraryModalOpen: false,
+      activeCategoryId: null,
+      media: null
     }
   },
 
@@ -166,14 +165,16 @@ export default {
           name: this.$refs.file.files[0].name,
           width: response.width,
           height: response.height,
-          content_type: this.$refs.file.files[0].type
+          content_type: this.$refs.file.files[0].type,
+          media_category_id: this.activeCategoryId
         })
       })
       .catch(() => {
         this.error = "Upload process failed."
       })
       .then(response => {
-        this.value = response.data.path
+        this.value = response.data.data.path
+        this.media = response.data.data
         this.busy = false
       })
       .catch(() => {
@@ -182,7 +183,8 @@ export default {
       })
     },
 
-    openFileField () {
+    openFileField (categoryId) {
+      this.activeCategoryId = categoryId
       this.$refs.file.click()
     },
 

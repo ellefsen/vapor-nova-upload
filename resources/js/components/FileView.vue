@@ -1,6 +1,6 @@
 <template>
   <div
-    class="ae-flex ae-flex-wrap ae--ml-8 ae--mr-8 ae-px-8 ae-pt-6 ae-mt-4 ae-overflow-y-auto ae-h-screen ae-shadow-inner"
+    class="ae-flex ae-flex-wrap ae-px-8 ae-pt-6 ae-mt-4 ae-overflow-y-auto ae-shadow-inner"
     @scroll="handleScroll"
     ref="medias">
     <div
